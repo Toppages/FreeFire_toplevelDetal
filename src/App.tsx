@@ -1,28 +1,29 @@
-import './App.css';
-import Login from './Pages/Login';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import Checkout from "./pages/Checkout";
+import NotFound from "./pages/NotFound";
 
-function AppContent() {
+import Navbar from './components/Navbar';
 
-  return (
-    <>
+const queryClient = new QueryClient();
 
-      <main style={{ flex: 1 }}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster richColors position="bottom-right" />
+      <BrowserRouter>
+        <Navbar /> {/* Navbar siempre visible */}
         <Routes>
-          <Route path="/Top-level-redeem" element={<Login />} />
-
+          <Route path="/" element={<Index />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
-      </main>
-    </>
-  );
-}
-
-function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
-}
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
