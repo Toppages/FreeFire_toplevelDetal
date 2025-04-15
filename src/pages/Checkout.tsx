@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import StepIndicator from "../components/StepIndicator";
 import UserIdStep from "../components/checkout/UserIdStep";
 import AmountStep from "../components/checkout/AmountStep";
 import PaymentStep from "../components/checkout/PaymentStep";
 import ProcessingStep from "../components/checkout/ProcessingStep";
 import CompletedStep from "../components/checkout/CompletedStep";
-import axios from 'axios';
 
 const Checkout = () => {
   const [active, setActive] = useState(0);
@@ -87,7 +84,7 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen pt-24 bg-gradient-to-r from-[#020024] to-[#0c2a85]">
-    
+
 
 
       <div className="container  mt-15  px-6">
@@ -131,20 +128,20 @@ const Checkout = () => {
 
         )}
 
-{active === 3 && (
-  <ProcessingStep
-    userId={userId}
-    selectedPackage={selectedPackage}
-    idNumber={idNumber}
-    phone={phone}
-    bank={bank}
-    reference={reference}
-    fechaPago={fechaPago}
-    nickname={nickname}
-    goToNextStep={goToNextStep}
-    pin={pin} 
-  />
-)}
+        {active === 3 && (
+          <ProcessingStep
+            userId={userId}
+            selectedPackage={selectedPackage}
+            idNumber={idNumber}
+            phone={phone}
+            bank={bank}
+            reference={reference}
+            fechaPago={fechaPago}
+            nickname={nickname}
+            goToNextStep={goToNextStep}
+            pin={pin}
+          />
+        )}
 
 
 
