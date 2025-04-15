@@ -8,7 +8,6 @@ const Footer = () => {
     <footer className="relative bg-card/80 backdrop-blur-md border-t border-white/10 py-10 mt-16">
       <div className="container ">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Logo and Description */}
           <div className="flex flex-col items-center md:items-start">
             <Link to="/" className="mb-4">
               <img src={logo} alt="Top Level Logo" className="h-16" />
@@ -27,7 +26,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div className="flex flex-col items-center md:items-start">
             <h3 className="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
             <ul className="space-y-2">

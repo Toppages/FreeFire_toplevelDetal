@@ -40,6 +40,7 @@ type PaymentStepProps = {
   setBank: (value: string) => void;
   setReference: (value: string) => void;
   setFechaPago: (value: string) => void;
+  setPin: (value: string) => void;
 };
 
 const PaymentStep = ({
@@ -55,6 +56,7 @@ const PaymentStep = ({
   setBank,
   setReference,
   setFechaPago,
+  setPin,
   onBack
 }: PaymentStepProps) => {
 
@@ -108,7 +110,7 @@ const PaymentStep = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+  
     const requestData = {
       cedulaPagador: idNumber,
       telefonoPagador: phone,
@@ -117,16 +119,17 @@ const PaymentStep = ({
       fechaPago: fechaPago,
       importe: selectedPackage ? selectedPackage.pricebs.toFixed(2) : "0.00",
       bancoOrigen: bank,
-      reqCed: false
+      reqCed: false,
+      code: selectedPackage?.code  
     };
-
+  
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/process-payment`,
         requestData,
         { headers: { "Content-Type": "application/json" } }
       );
-
+  
       if (response.data.data?.code !== 1000) {
         const errorMessage = response.data.data?.message || "Ocurrió un error desconocido";
         if (errorMessage.includes("consulta realizada exitosamente")) {
@@ -135,10 +138,9 @@ const PaymentStep = ({
           toast.error(errorMessage);
         }
       } else {
-        console.log("Respuesta del backend:", response.data);
+        setPin(response.data.pin);
         onSubmit();
       }
-
     } catch (error: any) {
       const errorMessage = error.response?.data?.data?.message || error.message;
       toast.error(`Error en la solicitud: ${errorMessage}`);
@@ -146,6 +148,7 @@ const PaymentStep = ({
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <div className="animate-fade-in">

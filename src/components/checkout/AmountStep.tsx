@@ -49,14 +49,13 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
     return '';
   };
 
-  // Función para extraer el valor numérico de los diamantes
   const extractDiamonds = (name: string): number => {
     const match = name.match(/([\d,.]+)\s*Diamantes/);
     if (match) {
       const cleanNumber = match[1].replace(/\./g, '').replace(/,/g, '.');
       return parseFloat(cleanNumber);
     }
-    return 0; // Valor por defecto si no se encuentra el patrón
+    return 0; 
   };
 
   if (isLoading) {
@@ -98,7 +97,7 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
                     alt="Diamante"
                     className="w-32 h-24"
                   />
-                  <div className="ml-4"> {/* Aquí se agrega el margen izquierdo */}
+                  <div className="ml-4"> 
                     <div className="font-bold text-white">
                       {option?.name.replace(/Free Fire\s*-?\s*([\d,.]+)\s*Diamantes\s*\+\s*([\d,.]+)\s*Bono/, "$1 + $2")}
                     </div>

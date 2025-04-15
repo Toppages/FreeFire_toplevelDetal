@@ -23,7 +23,6 @@ const StepIndicator = ({ steps, currentStep }: StepIndicatorProps) => {
           return (
             <div key={step.id} className="flex-1 flex flex-col items-center relative">
               <div className="flex items-center w-full">
-                {/* Línea antes */}
                 {index > 0 && (
                   <div 
                     className={cn(
@@ -33,7 +32,6 @@ const StepIndicator = ({ steps, currentStep }: StepIndicatorProps) => {
                   />
                 )}
                 
-                {/* Círculo del paso */}
                 <div
                   className={cn(
                     "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-all duration-500 relative z-10",
@@ -49,7 +47,6 @@ const StepIndicator = ({ steps, currentStep }: StepIndicatorProps) => {
                   {isCompleted ? <CheckIcon className="w-4 h-4" /> : <span>{step.id + 1}</span>}
                 </div>
                 
-                {/* Línea después */}
                 {index < steps.length - 1 && (
                   <div
                     className={cn(
@@ -60,7 +57,6 @@ const StepIndicator = ({ steps, currentStep }: StepIndicatorProps) => {
                 )}
               </div>
               
-              {/* Etiqueta del paso */}
               <div className="flex items-center mt-2">
                 <span
                   className={cn(

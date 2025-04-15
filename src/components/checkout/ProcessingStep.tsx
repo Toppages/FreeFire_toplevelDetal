@@ -13,6 +13,7 @@ type ProcessingStepProps = {
   reference: string;
   fechaPago: string;
   nickname: string;
+  pin: string | null;
   goToNextStep: (createdAt?: string, saleId?: number) => void;
 };
 
@@ -25,6 +26,7 @@ const ProcessingStep = ({
   reference,
   fechaPago,
   nickname,
+  pin,
   goToNextStep
 }: ProcessingStepProps) => {
   const [progress, setProgress] = useState(0);
@@ -48,15 +50,26 @@ const ProcessingStep = ({
         if (selectedPackage) {
           setStatusMessages((prev) => [...prev, "Recibiendo la información del juego..."]);
 
-          const pinResponse = await axios.get(`${import.meta.env.VITE_API_URL}/products/${selectedPackage.code}/pin`);
-          setPinData(pinResponse.data);
+          if (!pin) {
+            setError("PIN no disponible.");
+            return;
+          }
+          
+          const fakePinResponse = {
+            pin: {
+              pin_id: pin
+            }
+          };
+          
+          setPinData(fakePinResponse);
+          
 
           setStatusMessages((prev) => [...prev, "Información recibida exitosamente. Procesando PIN...", "Redimiendo PIN..."]);
 
           const scrapeResponse = await axios.get(`${import.meta.env.VITE_API_URL}/redimir`, {
             params: {
               GameAccountId: userId,
-              'hpws-pin': pinResponse.data.pin.pin_id,
+              'hpws-pin': fakePinResponse.pin.pin_id,
               'product-code': selectedPackage.code
             }
           });
@@ -70,7 +83,7 @@ const ProcessingStep = ({
               setError(errorMsg);
               await axios.post(`${import.meta.env.VITE_API_URL}/products/add-pins-without-deduction`, {
                 code: selectedPackage.code,
-                pins: [{ pin_id: pinResponse.data.pin.pin_id }]
+                pins: [{ pin_id: fakePinResponse.pin.pin_id, }]
               });
             }
             return;

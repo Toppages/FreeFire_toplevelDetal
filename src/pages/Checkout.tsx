@@ -30,7 +30,7 @@ const Checkout = () => {
     price: number;
   } | null>(null);
 
-
+  const [pin, setPin] = useState<string | null>(null);
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
@@ -126,24 +126,26 @@ const Checkout = () => {
             setBank={setBank}
             setReference={setReference}
             setFechaPago={setFechaPago}
+            setPin={setPin}
           />
 
         )}
 
-        {active === 3 && (
-          <ProcessingStep
-            userId={userId}
-            selectedPackage={selectedPackage}
-            idNumber={idNumber}
-            phone={phone}
-            bank={bank}
-            reference={reference}
-            fechaPago={fechaPago}
-            nickname={nickname}
-            goToNextStep={goToNextStep}
-          />
+{active === 3 && (
+  <ProcessingStep
+    userId={userId}
+    selectedPackage={selectedPackage}
+    idNumber={idNumber}
+    phone={phone}
+    bank={bank}
+    reference={reference}
+    fechaPago={fechaPago}
+    nickname={nickname}
+    goToNextStep={goToNextStep}
+    pin={pin} 
+  />
+)}
 
-        )}
 
 
         {active === 4 && saleData && (
