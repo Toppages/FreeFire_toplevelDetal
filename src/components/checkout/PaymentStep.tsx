@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Gem, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Select } from '@mantine/core';
+import { Select, Image } from '@mantine/core';
 import { toast } from 'sonner';
 
 const CopyButton = ({ text, format }: { text: string; format?: (text: string) => string }) => {
@@ -150,7 +150,9 @@ const PaymentStep = ({
   return (
     <div className="animate-fade-in">
       <h2 className="text-xl font-bold text-white mb-2">Procesar Pago</h2>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
         <div className="glass-card p-6 animate-fade-in flex flex-col" style={{ animationDelay: "100ms" }}>
           <h2 className="text-xl font-bold mb-4 text-white">Realiza el Pago</h2>
           <p className="text-muted-foreground">
@@ -165,14 +167,31 @@ const PaymentStep = ({
             <span className="text-white font-medium">Banco:</span> {banco}
             <CopyButton text={banco} />
           </p>
+
           <button
             onClick={copyAllToClipboard}
-            className="mt-auto w-full bg-[#0c2a85] hover:bg-blue-700 text-white py-2 rounded-lg transition-colors duration-300 ease-in-out flex items-center justify-center gap-2"
+            className="mt-auto w-full mb-6 bg-[#0c2a85] hover:bg-blue-700 text-white py-2 rounded-lg transition-colors duration-300 ease-in-out flex items-center justify-center gap-2"
           >
             <Copy size={18} color="#ffffff" />
             Copiar Todo
           </button>
-
+         
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+  <div style={{ width: 200 }}>
+    <Image
+      radius="md"
+      src="https://res.cloudinary.com/di0btw2pi/image/upload/v1744397620/ESCANEA_Y_PAGA_TEXT_yx4hc6.png"
+      alt="Random unsplash image"
+    />
+  </div>
+  <div style={{ width: 280 }}>
+    <Image
+      radius="md"
+      src="https://res.cloudinary.com/di0btw2pi/image/upload/v1744397624/QR_hbecgx.png"
+      alt="Random unsplash image"
+    />
+  </div>
+</div>
         </div>
 
         <div className="glass-card p-4 animate-fade-in flex flex-col" style={{ animationDelay: '200ms' }}>
@@ -280,7 +299,7 @@ const PaymentStep = ({
           <p className=" text-sm text-muted-foreground flex items-center justify-between">
             <span>
               Cualquier duda contacta con nosotros en{" "}
-              <a href="https://wa.me/+XXXXXXX" className="text-green-400">wa.me/+XXXXXXX</a>
+              <a href="https://wa.me/573224234790" className="text-green-400">wa.me/+573224234790</a>
             </span>
             <img
               src="https://res.cloudinary.com/di0btw2pi/image/upload/v1743454125/Levelito_WHATSAPP_acyufj.png"

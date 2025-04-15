@@ -1,4 +1,4 @@
-import logo from '../assets/Frre logo.png';
+import logo from '../assets/Frrelogo.png';
 import { motion } from 'framer-motion';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -86,7 +86,7 @@ const Index = () => {
 
               <div className="flex flex-col sm:flex-row items-center gap-4 justify-center mt-6">
                 <button
-                  onClick={() => navigate('/checkout')}
+                  onClick={() => navigate('/RecargaDiamantes')}
                   className="btn-primary bg-gradient-to-r from-[#020024] to-[#0c2a85] w-full sm:w-auto flex items-center justify-center gap-2"
                 >
                   <span>Recargar Ahora</span>

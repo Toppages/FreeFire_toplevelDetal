@@ -15,10 +15,10 @@ const App = () => (
     <TooltipProvider>
       <Toaster richColors position="bottom-right" />
       <BrowserRouter>
-        <Navbar /> {/* Navbar siempre visible */}
+        <Navbar /> 
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/RecargaDiamantes" element={<Checkout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
