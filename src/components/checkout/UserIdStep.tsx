@@ -8,12 +8,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 type UserIdStepProps = {
   userId: string;
   setUserId: (value: string) => void;
+  phone: string;
+  setPhone: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onPlayerData: (data: { alerta: string; Nickname: string | null; mensaje: string } | null) => void;
   onBack: () => void;
 };
 
-const UserIdStep = ({ userId, setUserId, onSubmit, onPlayerData, onBack }: UserIdStepProps) => {
+
+const UserIdStep = ({ userId, setUserId, phone, setPhone, onSubmit, onPlayerData, onBack }: UserIdStepProps) => {
   const navigate = useNavigate();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [playerData, setPlayerData] = useState<{ alerta: string; Nickname: string | null; mensaje: string } | null>(null);
@@ -36,7 +39,11 @@ const UserIdStep = ({ userId, setUserId, onSubmit, onPlayerData, onBack }: UserI
     }
   };
 
+const isValidPhone = (phone: string) => {
+  return /^\d{11}$/.test(phone); // permite cualquier número de 9 dígitos
+};
 
+  const isFormValid = userId.trim() !== "" && isValidPhone(phone);
 
   const handleConfirm = () => {
     if (playerData?.alerta !== "green") {
@@ -60,15 +67,34 @@ const UserIdStep = ({ userId, setUserId, onSubmit, onPlayerData, onBack }: UserI
           placeholder="Introduce tu ID"
           required
         />
+        <label className="block text-sm font-medium text-muted-foreground mb-2">Teléfono de contacto (te enviearemos el comprobante a este numero)</label>
+        
+        {phone && !isValidPhone(phone) && (
+          <p className="text-red-500 text-sm mb-4">Número inválido, Debe tener 11 dígitos.</p>
+        )}
+<input
+  type="tel"
+  value={phone}
+  onChange={(e) => {
+    const onlyNumbers = e.target.value.replace(/\D/g, ""); 
+    setPhone(onlyNumbers);
+  }}
+  className="input-theme w-full mb-6"
+  placeholder="Ej: 04141234567"
+  maxLength={11}
+  required
+/>
+
+
         <Group position="right">
           <Button variant="outline" onClick={onBack}>Volver</Button>
-        <Button
-  type="submit"
-  disabled={isLoading}
-  className="bg-[#0c2a85] text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors duration-300 ease-in-out"
->
-  {isLoading ? "Verificando..." : "Verificar ID"}
-</Button>
+          <Button
+            type="submit"
+            disabled={isLoading || !isFormValid}
+            className="bg-[#0c2a85] text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors duration-300 ease-in-out"
+          >
+            {isLoading ? "Verificando..." : "Verificar ID"}
+          </Button>
 
         </Group>
       </form>

@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { Image } from '@mantine/core';
+import axios from "axios";
+
 type ProcessingStepProps = {
   userId: string;
   selectedPackage: {
-    price: number; name: string; code: string; pricebs: number
+    price: number;
+    name: string;
+    code: string;
+    descuento: number | null;
   } | null;
   idNumber: string;
   phone: string;
@@ -13,8 +17,7 @@ type ProcessingStepProps = {
   reference: string;
   fechaPago: string;
   nickname: string;
-  pin: string | null;
-  goToNextStep: (createdAt?: string, saleId?: number) => void;
+goToNextStep: (saleData: any) => void;
 };
 
 const ProcessingStep = ({
@@ -26,165 +29,84 @@ const ProcessingStep = ({
   reference,
   fechaPago,
   nickname,
-  pin,
   goToNextStep
 }: ProcessingStepProps) => {
   const [progress, setProgress] = useState(0);
   const [statusMessages, setStatusMessages] = useState<string[]>([]);
-  const [user, setUser] = useState<any>(null);
-  const [pinData, setPinData] = useState<any>(null);
   const [error, setError] = useState<string>("");
-  const [saleResponse, setSaleResponse] = useState<any>(null);
   const [isRedemptionCompleted, setIsRedemptionCompleted] = useState(false);
-
-  useEffect(() => {
-    const fetchUserAndPin = async () => {
-      try {
-        setStatusMessages(["Conectando con los servidores..."]);
-
-        const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/user/topleveldetal`);
-        setUser(userResponse.data);
-
-        setStatusMessages((prev) => [...prev, "Verificando información..."]);
-
-        if (selectedPackage) {
-          setStatusMessages((prev) => [...prev, "Recibiendo la información del juego..."]);
-
-          if (!pin) {
-            setError("PIN no disponible.");
-            return;
-          }
-          
-          const fakePinResponse = {
-            pin: {
-              pin_id: pin
-            }
-          };
-          
-          setPinData(fakePinResponse);
-          
-
-          setStatusMessages((prev) => [...prev, "Información recibida exitosamente. Procesando PIN...", "Redimiendo PIN..."]);
-
-          const scrapeResponse = await axios.get(`${import.meta.env.VITE_API_URL}/redimir`, {
-            params: {
-              GameAccountId: userId,
-              'hpws-pin': fakePinResponse.pin.pin_id,
-              'product-code': selectedPackage.code
-            }
-          });
-
-          if (scrapeResponse.status !== 200 || !scrapeResponse.data.success) {
-            const errorMsg = scrapeResponse.data.message || "Ocurrió un error en el proceso.";
-
-            if (errorMsg.includes("PIN ya ha sido utilizado")) {
-              setError("Este PIN ya fue utilizado. Intenta con otro.");
-            } else {
-              setError(errorMsg);
-              await axios.post(`${import.meta.env.VITE_API_URL}/products/add-pins-without-deduction`, {
-                code: selectedPackage.code,
-                pins: [{ pin_id: fakePinResponse.pin.pin_id, }]
-              });
-            }
-            return;
-          }
-
-          setStatusMessages((prev) => [...prev, "PIN canjeado exitosamente.", "Aplicando recarga...", "¡Todo listo! Redirigiendo..."]);
-
-          setIsRedemptionCompleted(true); 
-        }
-      } catch (err) {
-        setError("No se pudo procesar la información.");
+useEffect(() => {
+  const interval = setInterval(() => {
+    setProgress((prev) => {
+      const next = prev + 10;
+      if (next >= 100) {
+        clearInterval(interval);
+        setIsRedemptionCompleted(true); // ← ¡Aquí se activa el createSale!
       }
-    };
+      return next;
+    });
+  }, 300); // puedes ajustar la velocidad aquí
 
-    fetchUserAndPin();
+  return () => clearInterval(interval); // limpieza del intervalo
+}, []);
 
-    const interval = setInterval(() => {
-      setProgress((prev) => (prev >= 100 ? 100 : prev + 5));
-    }, 150);
+useEffect(() => {
+  const createSale = async () => {
+    try {
+      if (!selectedPackage) return;
 
-    return () => clearInterval(interval);
-  }, [userId, selectedPackage]);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/sales`, {
+        handle: 'freefire_toplevel',
+        productName: "Free fire",
+        subProduct: selectedPackage.name,
+        quantity: 1,
+        totalPrice: selectedPackage.price,
+        currency: "VES",
+        payreference: reference,
+        mensaje: `id: ${userId} nombre de usuario: ${nickname}`,
+        clientNumber: phone,
+        Mybank: "Banco de venezuela"
+      });
 
-  useEffect(() => {
-    if (isRedemptionCompleted) {
-      const makeSale = async () => {
-        try {
-          if (isNaN(user.saldo) || isNaN(selectedPackage.price)) {
-            setError("El saldo o el precio no son válidos.");
-            return;
-          }
-  
-          const saleData = {
-            user: {
-              handle: user.handle,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-            },
-            playerId: userId,
-            totalOriginalPrice: selectedPackage.price,
-            nickname: nickname,
-            quantity: 1,
-            price: selectedPackage.price,
-            product: selectedPackage.code,
-            productName: selectedPackage.name,
-            totalPrice: selectedPackage.price,
-            moneydisp: user.saldo,
-            status: "completado",
-            order_id: `ORD-${Date.now()}`,
-            pins: [{ serial: pinData.pin.pin_id, key: "DEFAULT_KEY", usado: false, productName: selectedPackage.name }],
-            bank: bank,
-            reference: reference,
-            fechaPago: fechaPago,
-            phone: phone,
-          };
-  
-          const saleResponse = await axios.post(`${import.meta.env.VITE_API_URL}/salesdetal`, saleData);
-          setSaleResponse(saleResponse.data);
-  
-          setStatusMessages((prev) => [...prev, "Venta completada."]);
-  
-          goToNextStep(saleResponse.data.sale.created_at, saleResponse.data.sale.saleId);
-        } catch (err) {
-          setError("Error al procesar la venta.");
-        }
-      };
-  
-      makeSale();
+      const saleData = response.data;
+goToNextStep(saleData);
+    } catch (err) {
+      console.error("Error creando la venta:", err);
+      setError("Ocurrió un error al registrar la venta. Intente nuevamente.");
     }
-  }, [isRedemptionCompleted, user, pinData, selectedPackage, userId, nickname, goToNextStep]);
+  };
 
-  if (error.includes("Error al procesar la venta") || error.includes("No se pudo procesar la información.")) {
-    return (
-      <div className="text-center animate-fade-in">
-  <div className="glass-card p-10">
-    <h2 className="text-2xl font-bold text-white ">Recarga en Proceso</h2>
-    <div className="flex justify-center mb-6">
-      <div className="flex items-center">
-        <div className="mr-4 mb-4">
-          <div>Comuniquese con nuestro soporte tecnico</div>
-        </div>
-      <Image
-        radius="md"
-        width={400}
-        mt={-40}
-        height={270}
-        src="https://res.cloudinary.com/di0btw2pi/image/upload/v1743454096/Levelito_ERROR_IZQ_hdpnhj.png"
-        alt="Random unsplash image"
-      />
-      </div>
-    </div>
-  </div>
-</div>
-
-    
-    );
+  if (isRedemptionCompleted && progress >= 100) {
+    createSale();
   }
+}, [isRedemptionCompleted, progress]);
+
+
+
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return (
+      <div className="text-center animate-fade-in">
+        <div className="glass-card p-10">
+          <h2 className="text-2xl font-bold text-white">Recarga en Proceso</h2>
+          <div className="flex justify-center mb-6">
+            <div className="flex items-center">
+              <div className="mr-4 mb-4">
+                <div>Comuniquese con nuestro soporte técnico</div>
+              </div>
+              <Image
+                radius="md"
+                width={400}
+                mt={-40}
+                height={270}
+                src="https://res.cloudinary.com/di0btw2pi/image/upload/v1743454096/Levelito_ERROR_IZQ_hdpnhj.png"
+                alt="Error"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -224,7 +146,7 @@ const ProcessingStep = ({
             {selectedPackage && (
               <>
                 <li className="text-muted-foreground">Paquete: <span className="text-white">{selectedPackage.name}</span></li>
-                <li className="text-muted-foreground">Precio: <span className="text-white">{selectedPackage.pricebs} BS</span></li>
+                <li className="text-muted-foreground">Precio: <span className="text-white">{selectedPackage.price} BS</span></li>
               </>
             )}
             <li className="text-muted-foreground">Cédula: <span className="text-white">{idNumber}</span></li>

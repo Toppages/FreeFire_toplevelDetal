@@ -4,14 +4,30 @@ import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
 
 type CompletedStepProps = {
-  userId: string;
-  selectedPackage: { name: string; code: string; pricebs: number } | null;
-  createdAt: string;
-  saleId: number;
+  saleData: any;
 };
 
-const CompletedStep = ({ userId, selectedPackage, createdAt, saleId }: CompletedStepProps) => {
+
+
+const CompletedStep = ({ saleData }: CompletedStepProps) => {
   const navigate = useNavigate();
+  const {
+    saleId,
+    userHandle,
+    productName,
+    subProduct,
+    totalPrice,
+    totalCurrency,
+    currency,
+    status,
+    payreference,
+    mensaje,
+    clientNumber,
+    Mybank,
+    createdAt
+  } = saleData;
+
+
   const [windowDimension, setWindowDimension] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -59,17 +75,18 @@ const CompletedStep = ({ userId, selectedPackage, createdAt, saleId }: Completed
         
         <div className="bg-muted/40 rounded-lg p-4 mb-6">
           <h3 className="text-white text-left font-medium mb-3">Detalles de la compra:</h3>
-          <ul className="text-left space-y-2">
-          <li className="text-muted-foreground">Id de la compra: <span className="text-white">{saleId}</span></li>
-          <li className="text-muted-foreground">Fecha compra: <span className="text-white">{new Date(createdAt).toLocaleString()}</span></li>
-            <li className="text-muted-foreground">ID de jugador: <span className="text-white">{userId}</span></li>
-            {selectedPackage && (
-              <>
-                <li className="text-muted-foreground">Paquete: <span className="text-white">{selectedPackage.name}</span></li>
-                <li className="text-muted-foreground">Precio: <span className="text-white">{selectedPackage.pricebs} BS</span></li>
-              </>
-            )}
-          </ul>
+        <ul className="text-left space-y-2">
+  <li className="text-muted-foreground">ID de compra: <span className="text-white">{saleId.toString().padStart(5, "0")}</span></li>
+  <li className="text-muted-foreground">Producto: <span className="text-white">{productName} {subProduct}</span></li>
+  <li className="text-muted-foreground">Total : <span className="text-white">{totalCurrency.toLocaleString("es-VE", {
+                    style: "currency",
+                    currency: "VES",
+                    minimumFractionDigits: 2
+                  })}</span></li>
+  <li className="text-muted-foreground">Referencia: <span className="text-white">{payreference}</span></li>
+  <li className="text-muted-foreground">Fecha: <span className="text-white">{new Date(createdAt).toLocaleString()}</span></li>
+</ul>
+
         </div>
         
         <Button 

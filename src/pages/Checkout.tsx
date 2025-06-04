@@ -1,3 +1,4 @@
+// Checkout.tsx
 import { useState, useEffect } from "react";
 import StepIndicator from "../components/StepIndicator";
 import UserIdStep from "../components/checkout/UserIdStep";
@@ -11,7 +12,7 @@ const Checkout = () => {
   const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [saleData, setSaleData] = useState<{ createdAt: string; saleId: number } | null>(null);
+const [saleData, setSaleData] = useState<any>(null); // o define un tipo si prefieres
 
   const [nickname, setNickname] = useState<string | null>(null);
   const [idNumber, setIdNumber] = useState("");
@@ -23,16 +24,18 @@ const Checkout = () => {
   const [selectedPackage, setSelectedPackage] = useState<{
     name: string;
     code: string;
-    pricebs: number;
     price: number;
+    descuento: number | null;
   } | null>(null);
 
   const [pin, setPin] = useState<string | null>(null);
+
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
+  // Retroceder de paso
   const prevStep = () => {
     setActive((current) => {
       const newStep = Math.max(current - 1, 0);
@@ -43,15 +46,17 @@ const Checkout = () => {
     });
   };
 
-
+  // Avanzar de paso
   const nextStep = () => setActive((current) => Math.min(current + 1, 4));
-  const goToNextStep = (createdAt?: string, saleId?: number) => {
-    if (createdAt && saleId) {
-      setSaleData({ createdAt, saleId });
-    }
-    setActive((prev) => Math.min(prev + 1, 4));
-  };
 
+  // Avanzar con datos de venta
+const goToNextStep = (data: any) => {
+  setSaleData(data);
+  setActive((prev) => Math.min(prev + 1, 4));
+};
+
+
+  // Subida del ID de usuario
   const handleUserIdSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId.trim()) return;
@@ -61,33 +66,35 @@ const Checkout = () => {
       setIsLoading(false);
     }, 800);
   };
+
+  // Datos del jugador
   const handlePlayerData = (data: { Nickname: string | null }) => {
     setNickname(data.Nickname);
   };
-  const handleAmountSelect = (amountPackage: { name: string, code: string, pricebs: number, price: number }) => {
+
+  // Selección del paquete de recarga
+  const handleAmountSelect = (amountPackage: { name: string; code: string; price: number; descuento: number | null }) => {
     setSelectedPackage(amountPackage);
     nextStep();
   };
 
+  // Envío del formulario de pago
   const handlePaymentSubmit = () => {
     nextStep();
-
   };
 
+  // Pasos del checkout
   const steps = [
     { id: 0, name: "Monto" },
-    { id: 1, name: "Usario" },
+    { id: 1, name: "Usuario" },
     { id: 2, name: "Pago" },
     { id: 3, name: "Validar" },
     { id: 4, name: "Completado" }
   ];
 
   return (
-    <div className="min-h-screen pt-24 bg-gradient-to-r from-[#020024] to-[#0c2a85]">
-
-
-
-      <div className="container  mt-15  px-6">
+    <div className="min-h-screen pt-24 bg-gradient-to-r from-[#020024] to-[#090979]">
+      <div className="container mt-15 px-6">
         <StepIndicator steps={steps} currentStep={active} />
 
         {active === 0 && (
@@ -97,35 +104,34 @@ const Checkout = () => {
           />
         )}
 
-        {active === 1 && (
-          <UserIdStep
-            userId={userId}
-            setUserId={setUserId}
-            onSubmit={handleUserIdSubmit}
-            onPlayerData={handlePlayerData}
-            onBack={prevStep}
-          />
-        )}
+{active === 1 && (
+  <UserIdStep
+    userId={userId}
+    setUserId={setUserId}
+    phone={phone}
+    setPhone={setPhone}
+    onSubmit={handleUserIdSubmit}
+    onPlayerData={handlePlayerData}
+    onBack={prevStep}
+  />
+)}
 
 
-        {active === 2 && (
+         {active === 2 && (
           <PaymentStep
             selectedPackage={selectedPackage}
             onSubmit={handlePaymentSubmit}
             onBack={prevStep}
             idNumber={idNumber}
-            phone={phone}
             bank={bank}
             reference={reference}
             fechaPago={fechaPago}
             setIdNumber={setIdNumber}
-            setPhone={setPhone}
             setBank={setBank}
             setReference={setReference}
             setFechaPago={setFechaPago}
             setPin={setPin}
           />
-
         )}
 
         {active === 3 && (
@@ -139,20 +145,13 @@ const Checkout = () => {
             fechaPago={fechaPago}
             nickname={nickname}
             goToNextStep={goToNextStep}
-            pin={pin}
           />
         )}
-
-
 
         {active === 4 && saleData && (
-          <CompletedStep
-            userId={userId}
-            selectedPackage={selectedPackage}
-            createdAt={saleData.createdAt}
-            saleId={saleData.saleId}
-          />
-        )}
+  <CompletedStep saleData={saleData} />
+)}
+
       </div>
     </div>
   );

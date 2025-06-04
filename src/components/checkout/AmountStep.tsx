@@ -5,9 +5,8 @@ import axios from "axios";
 
 type AmountPackage = {
   name: string;
-  code: string;
-  pricebs: number;
   price: number;
+  descuento: number | null;
 };
 
 type AmountStepProps = {
@@ -18,34 +17,47 @@ type AmountStepProps = {
 const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
   const [amountOptions, setAmountOptions] = useState<AmountPackage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProductsAndRate = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/products`);
-        if (Array.isArray(response.data)) {
-          const sortedProducts = response.data.sort((a, b) => a.price - b.price);
-          setAmountOptions(sortedProducts);
+        const productsRes = await axios.get(
+          `${import.meta.env.VITE_API_URL}/products/1/subproduct-prices/6`
+        );
+
+        const rateRes = await axios.get(
+          `${import.meta.env.VITE_API_URL}/exchange-rate/current/ves`
+        );
+
+        const currentRate = rateRes.data?.currentRate || 1;
+        setExchangeRate(currentRate);
+
+        if (Array.isArray(productsRes.data.subproductPrices)) {
+          const sorted = productsRes.data.subproductPrices.sort((a, b) => a.price - b.price);
+          setAmountOptions(sorted);
         } else {
-          console.error("La respuesta de la API no es un arreglo válido:", response.data);
+          console.error("Respuesta inválida de productos:", productsRes.data);
         }
       } catch (error) {
-        console.error("Error al obtener los productos:", error);
+        console.error("Error al obtener datos:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+
+    fetchProductsAndRate();
+
+    const interval = setInterval(fetchProductsAndRate, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
+
   const getImageForDiamonds = (diamonds: number) => {
-    if (diamonds <= 100) {
-      return 'https://res.cloudinary.com/di0btw2pi/image/upload/v1743454059/DIAMANTE_hmwcv6.webp';
-    } else if (diamonds >= 150 && diamonds <= 950) {
-      return 'https://res.cloudinary.com/di0btw2pi/image/upload/v1743454059/DIAMANTES_FREE_wybnc6.webp';
-    } else if (diamonds > 1000) {
-      return 'https://res.cloudinary.com/di0btw2pi/image/upload/v1743454062/DIAMANTES_FREE_2_gcqyzu.webp';
-    }
+    if (diamonds <= 100) return 'https://res.cloudinary.com/di0btw2pi/image/upload/v1743454059/DIAMANTE_hmwcv6.webp';
+    if (diamonds >= 150 && diamonds <= 950) return 'https://res.cloudinary.com/di0btw2pi/image/upload/v1743454059/DIAMANTES_FREE_wybnc6.webp';
+    if (diamonds > 1000) return 'https://res.cloudinary.com/di0btw2pi/image/upload/v1743454062/DIAMANTES_FREE_2_gcqyzu.webp';
     return '';
   };
 
@@ -55,10 +67,10 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
       const cleanNumber = match[1].replace(/\./g, '').replace(/,/g, '.');
       return parseFloat(cleanNumber);
     }
-    return 0; 
+    return 0;
   };
 
-  if (isLoading) {
+  if (isLoading || exchangeRate === null) {
     return <p className="text-white text-center">Cargando opciones...</p>;
   }
 
@@ -68,18 +80,15 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {amountOptions.map((option, index) => {
           const diamonds = extractDiamonds(option.name);
+          const priceVES = option.price * exchangeRate;
 
           return (
             <motion.div
-              key={option.code}
+              key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.4,
-                delay: index * 0.1,
-                ease: [0.25, 0.1, 0.25, 1.0],
-              }}
-              whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(option)}
               className={cn(
@@ -90,27 +99,35 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
               )}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 opacity-10" />
-              <div className="relative z-1 flex items-center">
-                <div className="flex items-center">
-                  <img
-                    src={getImageForDiamonds(diamonds)}
-                    alt="Diamante"
-                    className="w-32 h-24"
-                  />
-                  <div className="ml-4"> 
-                    <div className="font-bold text-white">
-                      {option?.name.replace(/Free Fire\s*-?\s*([\d,.]+)\s*Diamantes\s*\+\s*([\d,.]+)\s*Bono/, "$1 + $2")}
-                    </div>
+              <div className="relative z-1 flex flex-row items-center space-x-4">
+                <img
+                  src={getImageForDiamonds(diamonds)}
+                  alt="Diamante"
+                  className="w-32 h-24 object-contain"
+                />
 
-                    <div
-                      className={cn(
-                        "text-2xl font-bold transition-colors",
-                        selectedPackage?.name === option.name ? "text-accent" : "text-white"
-                      )}
-                    >
-                      {option.pricebs.toLocaleString("es-VE", { style: "currency", currency: "VES" })}
-                    </div>
+                <div className="flex flex-col space-y-1">
+                  <div className="font-bold text-white">{option.name}</div>
+
+                  <div
+                    className={cn(
+                      "text-xl font-bold transition-colors",
+                      option.descuento ? "text-yellow-400" : "text-green-400"
+                    )}
+                  >
+                    {priceVES.toLocaleString("es-VE", {
+                      style: "currency",
+                      currency: "VES",
+                      minimumFractionDigits: 2,
+                    })}
                   </div>
+
+
+                  {option.descuento && (
+                    <div className="text-sm text-yellow-400 font-medium">
+                      Descuento: {option.descuento}%
+                    </div>
+                  )}
                 </div>
 
                 {selectedPackage?.name === option.name && (
@@ -121,6 +138,7 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
                   />
                 )}
               </div>
+
             </motion.div>
           );
         })}
