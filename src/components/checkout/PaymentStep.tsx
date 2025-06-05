@@ -97,8 +97,8 @@ const PaymentStep = ({
       referencia: reference,
       fechaPago: fechaPago,
       importe: selectedPackage && currentRate
-        ? (selectedPackage.price * currentRate).toFixed(2)
-        : "0.00",
+        ? Math.round(selectedPackage.price * currentRate).toString()
+        : "0",
       bancoOrigen: bank,
       reqCed: false,
       code: selectedPackage?.code
@@ -111,7 +111,7 @@ const PaymentStep = ({
         { headers: { "Content-Type": "application/json" } }
       );
 
-      if (response.data.data?.code !== 1000) {
+      if (response.data.data?.code !== 1010) {
         const errorMessage = response.data.data?.message || "Ocurrió un error desconocido";
         if (errorMessage.includes("consulta realizada exitosamente")) {
           toast.error(errorMessage.replace("consulta realizada exitosamente", "").trim());
@@ -238,15 +238,19 @@ const PaymentStep = ({
               )}
             </div>
           </div>
-          <p className="mt-4 text-xl font-bold text-white">
+          <p className="mt-2 text-xl font-bold text-white">
             Total: <span className="text-green-400">
               {selectedPackage && currentRate
-                ? `${(selectedPackage.price * currentRate).toLocaleString("es-VE", {
+                ? `${Math.round(selectedPackage.price * currentRate).toLocaleString("es-VE", {
                   style: "currency",
                   currency: "VES",
-                  minimumFractionDigits: 2
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
                 })}`
                 : "Cargando..."}            </span>
+          </p>
+          <p className="mt-2 text-sm font-bold text-yellow-400">
+            IMPORTANTE: Por favor, realice el pago por el monto exacto indicado en el detalle de pago
           </p>
           <p className=" text-sm text-muted-foreground flex items-center justify-between">
             <span>
@@ -256,7 +260,7 @@ const PaymentStep = ({
             <img
               src="https://res.cloudinary.com/di0btw2pi/image/upload/v1743454125/Levelito_WHATSAPP_acyufj.png"
               alt="Diamante"
-              className="w-32 -mt-8"
+              className="w-32 -mt-6"
             />
 
           </p>

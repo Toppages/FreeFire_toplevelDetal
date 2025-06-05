@@ -80,7 +80,7 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {amountOptions.map((option, index) => {
           const diamonds = extractDiamonds(option.name);
-          const priceVES = option.price * exchangeRate;
+const priceVES = Math.round(option.price * exchangeRate); 
 
           return (
             <motion.div
@@ -107,7 +107,7 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
                 />
 
                 <div className="flex flex-col space-y-1">
-                  <div className="font-bold text-white">{option.name}</div>
+                  <div className="font-bold text-white">{option.name} </div>
 
                   <div
                     className={cn(
@@ -118,7 +118,7 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
                     {priceVES.toLocaleString("es-VE", {
                       style: "currency",
                       currency: "VES",
-                      minimumFractionDigits: 2,
+                      minimumFractionDigits: 0,
                     })}
                   </div>
 
