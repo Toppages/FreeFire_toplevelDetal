@@ -172,7 +172,7 @@ const PaymentStep = ({
               <div>
                 <label className="block">Cédula del Titular</label>
                 <input
-                  type="text"
+                  type="number"
                   value={idNumber}
                   onChange={(e) => setIdNumber(e.target.value)}
                   className="w-full p-2 rounded bg-card text-white border border-gray-600"
@@ -182,7 +182,7 @@ const PaymentStep = ({
               <div>
                 <label className="block">Teléfono del Titular</label>
                 <input
-                  type="text"
+                  type="number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full p-2 rounded bg-card text-white border border-gray-600"
