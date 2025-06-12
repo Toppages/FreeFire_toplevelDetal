@@ -80,7 +80,7 @@ const AmountStep = ({ selectedPackage, onSelect }: AmountStepProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {amountOptions.map((option, index) => {
           const diamonds = extractDiamonds(option.name);
-const priceVES = Math.round(option.price * exchangeRate); 
+          const priceVES = Math.round(option.price * exchangeRate); 
 
           return (
             <motion.div

@@ -86,6 +86,7 @@ const PaymentStep = ({
     fetchExchangeRate();
   }, []);
   const [phone, setPhone] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -96,9 +97,10 @@ const PaymentStep = ({
       telefonoDestino: "04126425335",
       referencia: reference,
       fechaPago: fechaPago,
-      importe: selectedPackage && currentRate
-        ? Math.round(selectedPackage.price * currentRate).toString()
-        : "0",
+      importe:
+        selectedPackage && currentRate
+          ? Math.round(selectedPackage.price * currentRate).toString()
+          : "0",
       bancoOrigen: bank,
       reqCed: false,
       code: selectedPackage?.code
@@ -111,25 +113,26 @@ const PaymentStep = ({
         { headers: { "Content-Type": "application/json" } }
       );
 
-      if (response.data.data?.code !== 1010) {
-        const errorMessage = response.data.data?.message || "Ocurrió un error desconocido";
-        if (errorMessage.includes("consulta realizada exitosamente")) {
-          toast.error(errorMessage.replace("consulta realizada exitosamente", "").trim());
-        } else {
-          toast.error(errorMessage);
-        }
-      } else {
-        setPin(response.data.pin);
-        onSubmit();
+      if (response.data?.data?.code && response.data?.data?.code !== 1000) {
+        toast.error(response.data?.data?.message || "Error en la validación");
+        setIsSubmitting(false);
+        return;
       }
+
+      toast.success("Pago procesado correctamente");
+      onSubmit();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.data?.message || error.message;
-      toast.error(`Error en la solicitud: ${errorMessage}`);
-    } finally {
+      const errorResponse = error.response?.data;
+
+      if (errorResponse?.data?.code) {
+        toast.error(`(${errorResponse.data.message}`);
+      } else {
+        toast.error(`Error: ${errorResponse?.message || error.message}`);
+      }
+
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <div className="animate-fade-in">
@@ -249,9 +252,7 @@ const PaymentStep = ({
                 })}`
                 : "Cargando..."}            </span>
           </p>
-          <p className="mt-2 text-sm font-bold text-yellow-400">
-            IMPORTANTE: Por favor, realice el pago por el monto exacto indicado en el detalle de pago
-          </p>
+        
           <p className=" text-sm text-muted-foreground flex items-center justify-between">
             <span>
               Cualquier duda contacta con nosotros en{" "}

@@ -43,7 +43,9 @@ export const PaymentInfoCard = () => {
         <span className="text-white font-medium">Banco:</span> {banco}
         <CopyButton text={banco} />
       </p>
-
+  <p className="mt-2 text-sm font-bold text-yellow-400">
+            IMPORTANTE: Por favor, realice el pago por el monto exacto indicado en el detalle de pago
+          </p>
       <button
         onClick={copyAllToClipboard}
         className="mt-auto w-full mb-6 bg-[#0c2a85] hover:bg-blue-700 text-white py-2 rounded-lg transition-colors duration-300 ease-in-out flex items-center justify-center gap-2"
@@ -53,14 +55,14 @@ export const PaymentInfoCard = () => {
       </button>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: 200 }}>
+        <div style={{ width: 300 }}>
           <Image
             radius="md"
             src="https://res.cloudinary.com/di0btw2pi/image/upload/v1744397620/ESCANEA_Y_PAGA_TEXT_yx4hc6.png"
             alt="Texto escanear"
           />
         </div>
-        <div style={{ width: 280 }}>
+        <div style={{ width: 350 }}>
           <Image
             radius="md"
             src="https://res.cloudinary.com/di0btw2pi/image/upload/v1744397624/QR_hbecgx.png"
