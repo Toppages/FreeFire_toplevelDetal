@@ -256,7 +256,7 @@ const PaymentStep = ({
           <p className=" text-sm text-muted-foreground flex items-center justify-between">
             <span>
               Cualquier duda contacta con nosotros en{" "}
-              <a href="https://wa.me/573224234790" className="text-green-400">wa.me/+573224234790</a>
+              <a href="https://wa.me/584246004754" className="text-green-400">wa.me/+584246004754</a>
             </span>
             <img
               src="https://res.cloudinary.com/di0btw2pi/image/upload/v1743454125/Levelito_WHATSAPP_acyufj.png"
