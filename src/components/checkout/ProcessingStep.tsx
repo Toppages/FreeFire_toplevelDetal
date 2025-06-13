@@ -63,7 +63,7 @@ useEffect(() => {
         totalPrice: selectedPackage.price,
         currency: "VES",
         payreference: reference,
-        mensaje: `id: ${userId} nombre de usuario: ${nickname}`,
+        mensaje: `id: ${userId}`,
         clientNumber: phone,
         Mybank: "Banco de venezuela"
       });
